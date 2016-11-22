@@ -1,0 +1,83 @@
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  sudo: no
+  vars:
+    homebrew_taps:
+      - caskroom/cask
+      - caskroom/versions
+      - homebrew/bundle
+      - homebrew/core
+      - oclint/formulae
+      - rcmdnk/file
+      - stepanhruda/tap
+      - homebrew/versions
+    homebrew_packages:
+      - { name: ansible }
+      - { name: git }
+      - { name: curl }
+      - { name: pyenv }
+      - { name: cask }
+      - { name: xctool }
+      - { name: rbenv }
+      - { name: readline }
+      - { name: node6-lts } # Node.js は６を入れないとUIで使えない
+      - { name: awscli }
+      - { name: zsh }
+      - { name: tree }
+      
+    homebrew_cask_packages:
+      - { name: java }
+      - { name: google-chrome }
+      - { name: iterm2 }
+      #- { name: intellij-idea }  # FIX-ME: 古いバージョンが入れらない問題があるので
+      - { name: virtualbox }
+      - { name: vagrant }
+      - { name: atom }
+      - { name: slack }
+      - { name: sourcetree }
+
+  tasks:
+    - name: homebrew の tap リポジトリを追加
+      homebrew_tap: tap={{ item }}
+      with_items: "{{ homebrew_taps }}"
+
+    - name: homebrew をアップデート
+      homebrew: update_homebrew=yes
+
+    # brew
+    - name: brew パッケージをインストール
+      homebrew: >
+        name={{ item.name }}
+        state={{ item.state | default('latest') }}
+        install_options={{
+          item.install_options | default() | join(',')
+          if item.install_options is not string
+          else item.install_options
+        }}
+      with_items: "{{ homebrew_packages }}"
+      register: brew_result
+    
+    - name: brew パッケージの情報保存先ディレクトリを作成
+      file: path=brew_info state=directory
+    
+    - name: brew パッケージの情報を保存
+      shell: brew info {{ item }} > brew_info/{{ item }}
+      with_items: "{{ brew_result.results | map(attribute='item') | map(attribute='name') | list }}" 
+
+    # cask
+    - name: cask パッケージをインストール
+      homebrew_cask: name={{ item.name }} state={{ item.state|default('installed') }}
+      with_items: "{{ homebrew_cask_packages }}"
+      register: cask_result
+    - name: cask パッケージの情報保存先ディレクトリを作成
+      file: path=cask_info state=directory
+    - name: cask パッケージの情報を保存
+      shell: brew cask info {{ item }} > cask_info/{{ item }}
+      with_items: "{{ cask_result.results | selectattr('changed') | map(attribute='item') | map(attribute='name') | list }}"
+    
+    # pip install
+    - name: pip install
+      command: pip install pexpect
+    - command: pip install boto
