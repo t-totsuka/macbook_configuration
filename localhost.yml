@@ -13,6 +13,7 @@
       - rcmdnk/file
       - stepanhruda/tap
       - homebrew/versions
+
     homebrew_packages:
       - { name: ansible }
       - { name: git }
@@ -25,18 +26,30 @@
       - { name: node6-lts } # Node.js は６を入れないとUIで使えない
       - { name: awscli }
       - { name: zsh }
+      - { name: vim 
+         install_options: with-python3, with-override-system-vi }
       - { name: tree }
-      
+
     homebrew_cask_packages:
       - { name: java }
       - { name: google-chrome }
       - { name: iterm2 }
-      #- { name: intellij-idea }  # FIX-ME: 古いバージョンが入れらない問題があるので
-      - { name: virtualbox }
-      - { name: vagrant }
       - { name: atom }
       - { name: slack }
       - { name: sourcetree }
+      - { name: istat-menus }
+      - { name: flip4mac }
+      - { name: alfred }
+      - { name: dropbox }
+      - { name: kindle }
+      # quicklook plug-in 
+      - { name: qlstephen }
+      - { name: qlmarkdown }
+      - { name: quicklook-json }
+      - { name: quicklook-csv }
+      - { name: betterzipql }
+      - { name: qlcolorcode }
+      
 
   tasks:
     - name: homebrew の tap リポジトリを追加
@@ -77,7 +90,12 @@
       shell: brew cask info {{ item }} > cask_info/{{ item }}
       with_items: "{{ cask_result.results | selectattr('changed') | map(attribute='item') | map(attribute='name') | list }}"
     
+    # Anaconda install
+    
+    # zsh install
+    
     # pip install
     - name: pip install
       command: pip install pexpect
     - command: pip install boto
+    
