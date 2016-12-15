@@ -26,8 +26,7 @@
       - { name: node6-lts } # Node.js は６を入れないとUIで使えない
       - { name: awscli }
       - { name: zsh }
-      - { name: vim 
-         install_options: with-python3, with-override-system-vi }
+      - { name: vim ,install_options: with-python3, with-override-system-vi }
       - { name: tree }
 
     homebrew_cask_packages:
