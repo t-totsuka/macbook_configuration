@@ -21,3 +21,5 @@ brew install ansible
 ```
 ansible-playbook -i hosts -vv localhost.yml
 ```
+
+sample.memo
